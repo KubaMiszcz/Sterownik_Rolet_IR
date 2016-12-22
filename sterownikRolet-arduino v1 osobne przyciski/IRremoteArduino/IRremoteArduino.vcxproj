@@ -47,10 +47,10 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>d:\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino;d:\Program Files (x86)\Arduino\hardware\arduino\avr\variants\eightanaloginputs;D:\Desktop\Dropbox\=Wynalazki Kuby Miszcza\Sterownik_Rolet_IR\sterownikRolet-arduino\IRremoteArduino;d:\Program Files (x86)\Arduino\libraries\IRremote;d:\Program Files (x86)\Arduino\libraries\IRremote\utility;d:\Program Files (x86)\Arduino\libraries;d:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries;C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\wrfqur5a.oar\Micro Platforms\default\debuggers;D:\Desktop\Moje Dokumenty\Arduino\libraries;d:\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino;d:\Program Files (x86)\Arduino\hardware\arduino\avr\variants\eightanaloginputs;d:\Program Files (x86)\Arduino\libraries\IRremote;d:\Program Files (x86)\Arduino\libraries;d:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries;C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\wrfqur5a.oar\Micro Platforms\default\debuggers;D:\Desktop\Moje Dokumenty\Arduino\libraries;d:\Program Files (x86)\Arduino\hardware\tools\avr/avr/include/;d:\Program Files (x86)\Arduino\hardware\tools\avr//avr/include/avr/;d:\Program Files (x86)\Arduino\hardware\tools\avr/lib\gcc\avr\4.8.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <ForcedIncludeFiles>D:\Desktop\Dropbox\=Wynalazki Kuby Miszcza\Sterownik_Rolet_IR\sterownikRolet-arduino\IRremoteArduino\__vm\.IRremoteArduino.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <AdditionalIncludeDirectories>d:\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino;d:\Program Files (x86)\Arduino\hardware\arduino\avr\variants\eightanaloginputs;d:\Desktop\Dropbox\=Wynalazki Kuby Miszcza\Sterownik_Rolet_IR\sterownikRolet-arduino v1 osobne przyciski\IRremoteArduino;d:\Program Files (x86)\Arduino\libraries\IRremote;d:\Program Files (x86)\Arduino\libraries\IRremote\utility;d:\Program Files (x86)\Arduino\libraries;d:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries;C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\wrfqur5a.oar\Micro Platforms\default\debuggers;D:\Desktop\Moje Dokumenty\Arduino\libraries;d:\Program Files (x86)\Arduino\hardware\tools\avr/avr/include/;d:\Program Files (x86)\Arduino\hardware\tools\avr//avr/include/avr/;d:\Program Files (x86)\Arduino\hardware\tools\avr/lib\gcc\avr\4.8.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>D:\Desktop\Dropbox\==pulpit dropbox==\IR remote arduino\IRremoteArduino\IRremoteArduino\__vm\.IRremoteArduino.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
-      <PreprocessorDefinitions>__AVR_ATmega328p__;__AVR_ATmega328P__;F_CPU=16000000L;ARDUINO=10607;ARDUINO_AVR_NANO;ARDUINO_ARCH_AVR;__cplusplus=201103L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>__AVR_ATmega328p__;__AVR_ATmega328P__;_VMDEBUG=1;F_CPU=16000000L;ARDUINO=10607;ARDUINO_AVR_NANO;ARDUINO_ARCH_AVR;__cplusplus=201103L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -78,16 +78,12 @@
   <ItemGroup>
     <ClInclude Include="__vm\.IRremoteArduino.vsarduino.h" />
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Received_IR_Code.cpp" />
-    <ClCompile Include="Motor.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties arduino.upload.port="COM8" />
+      <UserProperties arduino.upload.port="COM3" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

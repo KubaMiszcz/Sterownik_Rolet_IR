@@ -26,144 +26,193 @@ Pin 3 to Vcc (+5v from Arduino)
 */
 
 /*******************CODE BEGINS HERE********************/
-
 #include <IRremote.h>
+#include "Received_IR_Code.cpp"
+#include "Motor.cpp"
 
-int IRpin = 3;
-int UpBtn = 1090515214;
-int DownBtn = 1090488694;
-double akcja = 0;
-int UpLED = 5;
-int DownLED = 2;
-int silnik_w_lewo = 9; //INA
-int silnik_w_prawo = 10; //INB
-int speedUp = 255;
-int speedDown = 128;
-int licznik = 0;
-String dir="brak przycisku";
-String dirprev ;
-double  akcjaprev ;
-unsigned long aktualnyCzas = 0;
-unsigned long aktualnyCzasPrev;
+//DEFINICJE PINOW
+					int IR_Input_PIN = 4;
+		//silnik1 - lewy
+					int motor1_BtnPIN = 8;
+					int motor1_UpPIN = 5; //A-INA	PWM
+					int motor1_DownPIN =6; //A-INB	PWM
+					int motor1_LED = 12;
+		//silnik2 - prawy
+					int motor2_BtnPIN = 7;
+					int motor2_UpPIN = 9; //A-INA	PWM
+					int motor2_DownPIN = 10; //A-INB	PWM
+					int motor2_LED = 13;
+					
+//ZMIENNE GLOBALNE
+		unsigned long motor1_IRCode = 16195807;
+		unsigned long motor2_IRCode = 16228447;
 
-IRrecv irrecv(IRpin);
-decode_results results;
+		int SpeedUpSlow = 255 * 0.95;	//128
+		int SpeedUpFast = 255 * 1.0;	//255	
+		int SpeedDownSlow = 255 * 0.5;	//64
+		int SpeedDownFast = 255 * 0.8;	//128
+		int SpeedUpWait_ms = 1500; //po tym czasie ma przyspieszyc
 
+//ZMIENNE POMOCNICZE
+		unsigned long Check_IR_Code = 0;
+		unsigned long Check_IR_Code_Prev = Check_IR_Code;
+		long int SpeedUpStart = 0;
 
+//INSTANCJE
+		Motor motor1 = Motor(motor1_BtnPIN, motor1_LED, "down", motor1_IRCode, motor1_DownPIN, motor1_UpPIN);
+		Motor motor2 = Motor(motor2_BtnPIN, motor2_LED, "down", motor2_IRCode, motor2_DownPIN, motor2_UpPIN);
+
+		Received_IR_Code received_IR_Code;
+		IRrecv irrecv(IR_Input_PIN);
+		decode_results results;
 
 void setup()
 {
-	Serial.begin(9600);
-	Serial.println("HEELOU!");
-	irrecv.enableIRIn(); // Start the receiver
-	pinMode(UpLED, OUTPUT);
-	pinMode(DownLED, OUTPUT);
-	pinMode(silnik_w_lewo, OUTPUT);
-	pinMode(silnik_w_prawo, OUTPUT);
+	/*Serial.begin(9600);
+	Serial.println("HEELOU!");*/
+	
+	// Start the receiver
+	pinMode(IR_Input_PIN, INPUT);
+	irrecv.enableIRIn(); 
+	//silnik1
+	pinMode(motor1_BtnPIN, INPUT_PULLUP);
+	pinMode(motor1_LED, OUTPUT);
+	pinMode(motor1_UpPIN, OUTPUT);
+	pinMode(motor1_DownPIN, OUTPUT);
+	//silnik2
+	pinMode(motor2_BtnPIN, INPUT_PULLUP);
+	pinMode(motor2_LED, OUTPUT);
+	pinMode(motor2_UpPIN, OUTPUT);
+	pinMode(motor2_DownPIN, OUTPUT);
+
 }
 
-void loop()
-{
 
+void loop() {
+	received_IR_Code.valuee = Read_IR_Code();
+	motor1.btnState = motor1.aktBtn_state();
+	motor2.btnState = motor2.aktBtn_state();
+
+	String str = "kod: ";
+	str += String(received_IR_Code.value_prev) + " ";
+	str += String(received_IR_Code.valuee) + " ";
+	str += motor1.Direction + " ";
+	str += motor2.Direction;
+	Serial.println(str);
+
+	Silnik1();
+	Silnik2();
+
+	received_IR_Code.value_prev = received_IR_Code.valuee;
+	motor1.btnState_prev = motor1.btnState;
+	motor2.btnState_prev = motor2.btnState;
+
+	
+
+}
+
+
+void Silnik1() {
+	//OBLSUGA ZDARZEN
+	//zalaczenie silnika
+	if (received_IR_Code.R_TRIG(motor1.IR_Code) || motor1.Btn_R_TRIG()) {
+		String str = "ksss: ";
+		str += String(received_IR_Code.R_TRIG(motor1.IR_Code)) + " ";
+		str += String(motor1.Btn_R_TRIG()) + " ";
+		Serial.println(str);
+
+
+		motor1.ChangeDirection();
+		SpeedUpStart = millis() + SpeedUpWait_ms; //kiedy ma przyspieszyc
+		if (motor1.Direction == "down") {
+			motor1.Run(SpeedDownSlow);
+			Serial.println("down");
+
+		}
+		if (motor1.Direction == "up") {
+			motor1.Run(SpeedUpSlow);
+			Serial.println("up");
+
+		}
+	}
+
+	//zatrzymanie silnika po puszczeniu przycisku
+	if (received_IR_Code.F_TRIG(motor1.IR_Code) || motor1.Btn_F_TRIG()) {
+		motor1.Run(0);		Serial.println("stop");
+	}
+
+	//przyspieszenie po 3 sek od wcisniecia
+	if (received_IR_Code.valuee == motor1.IR_Code || motor1.Btn_IsON()) {
+		if (millis() >= SpeedUpStart) {
+			if (motor1.Direction == "down") {
+				motor1.Run(SpeedDownFast);
+			}
+			if (motor1.Direction == "up") {
+				motor1.Run(SpeedUpFast);
+			}
+		}
+	}
+}//end loopOKKK()
+
+void Silnik2() {
+	//OBLSUGA ZDARZEN
+	//zalaczenie silnika
+	if (received_IR_Code.R_TRIG(motor2.IR_Code) || motor2.Btn_R_TRIG()) {
+		String str = "ksss: ";
+		str += String(received_IR_Code.R_TRIG(motor2.IR_Code)) + " ";
+		str += String(motor2.Btn_R_TRIG()) + " ";
+		Serial.println(str);
+
+
+		motor2.ChangeDirection();
+		SpeedUpStart = millis() + SpeedUpWait_ms; //kiedy ma przyspieszyc
+		if (motor2.Direction == "down") {
+			motor2.Run(SpeedDownSlow);
+			Serial.println("down");
+
+		}
+		if (motor2.Direction == "up") {
+			motor2.Run(SpeedUpSlow);
+			Serial.println("up");
+
+		}
+	}
+
+	//zatrzymanie silnika po puszczeniu przycisku
+	if (received_IR_Code.F_TRIG(motor2.IR_Code) || motor2.Btn_F_TRIG()) {
+		motor2.Run(0);		Serial.println("stop");
+	}
+
+	//przyspieszenie po 3 sek od wcisniecia
+	if (received_IR_Code.valuee == motor2.IR_Code || motor2.Btn_IsON()) {
+		if (millis() >= SpeedUpStart) {
+			if (motor2.Direction == "down") {
+				motor2.Run(SpeedDownFast);
+			}
+			if (motor2.Direction == "up") {
+				motor2.Run(SpeedUpFast);
+			}
+		}
+	}
+}//end Silnik2
+
+unsigned long Read_IR_Code() {
+	_delay_ms(100);  //spowolnienie bo lapie zera miedzy odczytami ze niby puszczam przycisk
 	if (irrecv.decode(&results))
 	{
-		double temp = results.value; 
-		//Serial.println("kod wcisnietego: " + String(results.value, DEC)); // Print the Serial 'results.value'
-		Serial.println("kod wcisnietego: " + String(temp)); // Print the Serial 'results.value'
-		if (temp != 4294967300.00) akcja = temp;
+		//4294967295=kod ze przycisk jest trzymany, taki sam dla trzymania kazdego przycisku
+		if (results.value != -1) {
+			Check_IR_Code = results.value;
+			Check_IR_Code_Prev = Check_IR_Code;
+		}
+		else {
+			Check_IR_Code = Check_IR_Code_Prev;
+		}
 		irrecv.resume();   // Receive the next value
-		licznik = 0;
 	}
 	else {
-		licznik++;
-		if (licznik > 2000) { 
-			dir = "brak przycisku";
-			akcja = 0;
-		};
+		Check_IR_Code = 0;	
 	}
-	
-	//pilot z wiezy double
-	//gora	1090515200.00
-	//dol	1090488700.00
-	//stop	1090478500.00
-
-
-	if (akcja == 1090515200.00 || akcja == 16187647.00) dir = "gora";
-	if (akcja == 1090488700.00 || akcja == 16220287.00) dir = "dol";
-	if (akcja == 1090478500.00 || akcja == 16236607.00) dir = "stop";
-	if (akcja == 4294967300.00 || akcja == 4294967300.00) dir = "trzymam";
-
-		
-	if (dir == "gora") {
-		digitalWrite(UpLED, HIGH);
-		digitalWrite(DownLED, LOW);
-		analogWrite(silnik_w_lewo, speedUp);
-		analogWrite(silnik_w_prawo, 0);
-	}
-
-	else if (dir == "dol") {
-		digitalWrite(UpLED, LOW);
-		digitalWrite(DownLED, HIGH);
-		analogWrite(silnik_w_lewo, 0);
-		analogWrite(silnik_w_prawo, speedDown);
-	}
-
-	else if (dir == "stop") {
-		digitalWrite(UpLED, LOW);
-		digitalWrite(DownLED, LOW);
-		analogWrite(silnik_w_lewo, 0);
-		analogWrite(silnik_w_prawo, 0);
-	}
-
-	else if (dir == "trzymam") {
-	}
-
-	else if (dir == "brak przycisku") {
-		digitalWrite(UpLED, LOW);
-		digitalWrite(DownLED, LOW);
-		analogWrite(silnik_w_lewo, 0);
-		analogWrite(silnik_w_prawo, 0);
-	}
-
-	aktualnyCzas = millis()/1000;
-	
-	if (aktualnyCzas != aktualnyCzasPrev) {
-		//Serial.println("sekunda "+String(aktualnyCzas));
-
-	}
-
-	if (aktualnyCzas == (60*60*11)) {
-		digitalWrite(UpLED, HIGH);
-		digitalWrite(DownLED, LOW);
-		analogWrite(silnik_w_lewo, speedUp);
-		analogWrite(silnik_w_prawo, 0);
-		delay(4500);	//4800ms - podnoszenie rolety
-		digitalWrite(UpLED, LOW);
-		digitalWrite(DownLED, LOW);
-		analogWrite(silnik_w_lewo, 0);
-		analogWrite(silnik_w_prawo, 0);
-	}
-
-
-
-	aktualnyCzasPrev = aktualnyCzas;
-
-	
-
-
-	//akcja = 0;
-	//piloty:
-	//do wiezy:
-	//1090515214: //gora
-	//1090488694 : //dol
-	//1090478494 :	//snooze
-	//4294967295 -trzymany przycisk
-
-	//pilot do zarowki:
-	//	up - 16187647
-	//	down -	16220287
-	//	on-16236607
-	//off - 16203967
-
-
+	return Check_IR_Code;
 }
+
